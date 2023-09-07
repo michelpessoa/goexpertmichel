@@ -1,4 +1,4 @@
-module github.com/michelpessoa/devfullcycle/goexpert/6/1
+module github.com/michelpessoa/goexpertmichel
 
 go 1.21.0
 
