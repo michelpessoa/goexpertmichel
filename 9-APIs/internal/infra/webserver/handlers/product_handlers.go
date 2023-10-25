@@ -74,11 +74,13 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	_, err = h.ProductDB.FindByID(id)
+	pSearch, err := h.ProductDB.FindByID(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	// Correção para não sobreescrever a data de criação do produto
+	product.CreatedAt = pSearch.CreatedAt
 	err = h.ProductDB.Update(&product)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
