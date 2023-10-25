@@ -2,17 +2,17 @@ package main
 
 import (
 	"net/http"
-	
+
 	"github.com/michelpessoa/goexpertmichel/9-Apis/configs"
 	"github.com/michelpessoa/goexpertmichel/9-Apis/internal/entity"
 	"github.com/michelpessoa/goexpertmichel/9-Apis/internal/infra/database"
 	"github.com/michelpessoa/goexpertmichel/9-Apis/internal/infra/webserver/handlers"
-	
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
 	"github.com/go-chi/chi/v5"
-    "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
@@ -35,8 +35,9 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Post("/products", productHandler.CreateProduct)
-	
+	r.Get("/products/{id}", productHandler.GetProduct)
+	r.Put("/products/{id}", productHandler.UpdateProduct)
+
 	http.ListenAndServe(":8000", r)
 
 }
-
