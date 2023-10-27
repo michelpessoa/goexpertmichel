@@ -1,0 +1,32 @@
+# Criar um usuário
+POST http://localhost:8000/users HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "email": "johndoe@example.com",
+    "password": "123456"
+}
+
+#######
+
+# Ler um usuário
+GET http://localhost:8000/users/1  HTTP/1.1
+
+
+########
+
+# Atualizar um usuário
+PUT http://localhost:8000/users/1  HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "Jane Doe",
+    "email": "janedoe@example.com",
+    "password": "654321"
+}
+
+#######
+
+# Deletar um usuário
+DELETE http://localhost:8000/users/1 HTTP/1.1
