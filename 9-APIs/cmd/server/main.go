@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/michelpessoa/goexpertmichel/9-Apis/configs"
@@ -13,13 +14,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+
+	"github.com/go-chi/jwtauth"
 )
 
 func main() {
-	// Forma encapsulada
-	// config := configs.NewConf()
-
-	_, err := configs.LoadConfig(".")
+	configs, err := configs.LoadConfig(".")
 	if err != nil {
 		panic(err)
 	}
@@ -38,14 +38,32 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Post("/products", productHandler.CreateProduct)
-	r.Get("/products/{id}", productHandler.GetProduct)
-	r.Put("/products/{id}", productHandler.UpdateProduct)
-	r.Delete("/products/{id}", productHandler.DeleteProduct)
-	r.Get("/products", productHandler.GetProducts)
+	// Middleware para logar as requisições
+	//r.Use(LogRequest)
+	r.Use(middleware.WithValue("jwt", configs.TokenAuth))
+	r.Use(middleware.WithValue("JwtExperesIn", configs.JwtExperesIn))
+	r.Use(middleware.Recoverer)
+
+	r.Route("/products", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(configs.TokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.Post("/", productHandler.CreateProduct)
+		r.Get("/{id}", productHandler.GetProduct)
+		r.Put("/{id}", productHandler.UpdateProduct)
+		r.Delete("/{id}", productHandler.DeleteProduct)
+		r.Get("/", productHandler.GetProducts)
+	})
 
 	r.Post("/users", userHandler.CreateUser)
+	r.Post("/users/generate_token", userHandler.GetJWT)
 
 	http.ListenAndServe(":8000", r)
 
+}
+
+func LogRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Request received. Method: %s, URL: %s", r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+	})
 }
