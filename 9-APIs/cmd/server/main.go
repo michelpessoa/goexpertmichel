@@ -16,8 +16,27 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/go-chi/jwtauth"
+
+	_ "github.com/michelpessoa/goexpertmichel/9-Apis/docs"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+// @title           Go Expert API Example
+// @version         1.0
+// @description     Product API with auhtentication
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   Michel Pessoa Keursten
+// @contact.email  michelpessoa@gmailcom
+
+// @license.name   Full Cycle License
+// @license.url    http://www.fullcycle.com.br
+
+// @host      localhost:8000
+// @BasePath  /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	configs, err := configs.LoadConfig(".")
 	if err != nil {
@@ -57,8 +76,9 @@ func main() {
 	r.Post("/users", userHandler.CreateUser)
 	r.Post("/users/generate_token", userHandler.GetJWT)
 
-	http.ListenAndServe(":8000", r)
+	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8000/docs/doc.json")))
 
+	http.ListenAndServe(":8000", r)
 }
 
 func LogRequest(next http.Handler) http.Handler {
