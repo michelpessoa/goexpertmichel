@@ -1,0 +1,28 @@
+Para a geração automática da organização das pastas do projeto GraphQl 
+
+Deve-se iniciar o projeto como "go mod init 'github.com/<nomeModulo>'
+
+Logo após a criaçãod o módulo, abra o terminal e execute exatamente este comando a seguir
+
+printf '// +build tools\npackage tools\nimport (_ "github.com/99designs/gqlgen"\n _ "github.com/99designs/gqlgen/graphql/introspection")' | gofmt > tools.go
+
+Ele criará um arquivo chamado tools.go
+
+Seguindo execute o comando para baixar as dependências necessárias (go mod tidy)
+
+Novamente execute o seguinte comando no terminal 
+
+go run github.com/99designs/gqlgen init
+
+e em seguida o go mod tidy
+
+Com isso, será criado a pasta "graph" com o serviço GraphQl pronta para uso.
+
+para testar execute o comando
+
+go run server.go
+
+E depois acesso pelo navegador o endereço http://localhost:8080
+
+
+Fonte: https://gqlgen.com
