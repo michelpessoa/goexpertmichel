@@ -33,5 +33,4 @@ func LoadConfig(path string) (*configuracao, error) {
 		panic(err)
 	}
 	return cfg, err
-
 }
