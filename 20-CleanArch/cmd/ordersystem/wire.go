@@ -8,6 +8,11 @@ import (
 
 	"github.com/google/wire"
 	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/entity"
+	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/event"
+	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/infra/database"
+	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/infra/web"
+	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/usecase"
+	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/pkg/events"
 )
 
 var setOrderRepositoryDependency = wire.NewSet(
@@ -34,6 +39,23 @@ func NewCreateOrderUseCase(db *sql.DB, eventDispatcher events.EventDispatcherInt
 		usecase.NewCreateOrderUseCase,
 	)
 	return &usecase.CreateOrderUseCase{}
+}
+
+func NewWebOrderHandler(db *sql.DB, eventDispatcher events.EventDispatcherInterface) *web.WebOrderHandler {
+	wire.Build(
+		setOrderRepositoryDependency,
+		setOrderCreatedEvent,
+		web.NewWebOrderHandler,
+	)
+	return &web.WebOrderHandler{}
+}
+
+func NewListOrdersUseCase(db *sql.DB) *usecase.ListOrdersUseCase {
+	wire.Build(
+		setOrderRepositoryDependency,
+		usecase.NewListOrdersUseCase,
+	)
+	return &usecase.ListOrdersUseCase{}
 }
 
 func NewWebOrderHandler(db *sql.DB, eventDispatcher events.EventDispatcherInterface) *web.WebOrderHandler {

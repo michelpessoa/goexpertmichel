@@ -10,8 +10,14 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 
 	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/configs"
+
 	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/event/handler"
+	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/infra/graph"
+	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/infra/grpc/pb"
+	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/infra/grpc/service"
+	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/infra/web/webserver"
 	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/pkg/events"
+
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -40,15 +46,17 @@ func main() {
 	})
 
 	createOrderUseCase := NewCreateOrderUseCase(db, eventDispatcher)
+	listOrdersUseCase := NewListOrdersUseCase(db)
 
 	webserver := webserver.NewWebServer(configs.WebServerPort)
 	webOrderHandler := NewWebOrderHandler(db, eventDispatcher)
-	webserver.AddHandler("/order", webOrderHandler.Create)
+	webserver.Router.Get("/order", webOrderHandler.List)
+	webserver.Router.Post("/order", webOrderHandler.Create)
 	fmt.Println("Starting web server on port", configs.WebServerPort)
-	go webserver.Start()
+	go http.ListenAndServe(configs.WebServerPort, webserver.Router)
 
 	grpcServer := grpc.NewServer()
-	createOrderService := service.NewOrderService(*createOrderUseCase)
+	createOrderService := service.NewOrderService(*createOrderUseCase, *listOrdersUseCase)
 	pb.RegisterOrderServiceServer(grpcServer, createOrderService)
 	reflection.Register(grpcServer)
 
@@ -60,8 +68,7 @@ func main() {
 	go grpcServer.Serve(lis)
 
 	srv := graphql_handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
-		CreateOrderUseCase: *createOrderUseCase,
-	}}))
+		CreateOrderUseCase: *createOrderUseCase, ListOrdersUseCase: *listOrdersUseCase}}))
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
 

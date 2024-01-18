@@ -1,6 +1,9 @@
 package usecase
 
-import "github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/entity"
+import (
+	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/internal/entity"
+	"github.com/michelpessoa/goexpert/20-CLEAN_ARCH/pkg/events"
+)
 
 type OrderInputDTO struct {
 	ID    string  `json:"id"`
